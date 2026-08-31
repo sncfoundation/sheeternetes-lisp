@@ -31,3 +31,32 @@ Everything starts as an **Unsaved Draft**. It reconciles up the tiers from there
 ---
 
 <sub>Licensed under Apache-2.0. The SNCF does not recommend running production on a spreadsheet. If you do, please film it.</sub>
+
+
+## Usage
+
+Requires [SBCL](http://www.sbcl.org/) and [Quicklisp](https://www.quicklisp.org/) with
+`dexador` and `yason`.
+
+```bash
+export WEBAPP_URL="https://script.google.com/macros/s/XXXX/exec"
+export TOKEN="CHANGE_ME_super_secret"
+
+sbcl --script skctl.lisp get pods
+sbcl --script skctl.lisp get deployments
+sbcl --script skctl.lisp scale hello 3
+sbcl --script skctl.lisp apply manifest.json
+sbcl --script skctl.lisp delete hello
+```
+
+From the REPL:
+
+```lisp
+(load "skctl.lisp")
+(in-package :sheeternetes)
+(get-resource "nodes")
+(scale "hello" 5)
+```
+
+Parentheses and spreadsheets share a deep love of nesting. Homoiconic orchestration — it reconciles.
+
