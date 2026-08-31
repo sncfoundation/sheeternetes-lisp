@@ -2,12 +2,17 @@
 ;;;; Talks to the Apps Script apiserver over HTTP. Homoiconic orchestration.
 ;;;;
 ;;;; Deps (Quicklisp): dexador (HTTP), yason (JSON).
-;;;;   WEBAPP_URL=... TOKEN=... sbcl --script skctl.lisp get pods
-;;;;   ... skctl.lisp scale hello 3
-;;;;   ... skctl.lisp apply manifest.json
+;;;;   WEBAPP_URL=... TOKEN=... sbcl --non-interactive --load skctl.lisp -- get pods
+;;;;   ... --load skctl.lisp -- scale hello 3
+;;;;   ... --load skctl.lisp -- apply manifest.json
+(require :asdf)   ; SBCL bundles ASDF + UIOP (uiop: symbols resolve under --load)
 (eval-when (:load-toplevel :execute)
-  (handler-case (ql:quickload '(:dexador :yason) :silent t)
-    (error () (format *error-output* "This client needs Quicklisp with :dexador and :yason.~%"))))
+  (unless (find-package :ql)
+    (let ((setup (merge-pathnames "quicklisp/setup.lisp" (user-homedir-pathname))))
+      (when (probe-file setup) (load setup))))
+  (if (find-package :ql)
+      (funcall (read-from-string "ql:quickload") (list :dexador :yason) :silent t)
+      (format *error-output* "This client needs Quicklisp (~~/quicklisp/setup.lisp) with :dexador and :yason.~%")))
 
 (defpackage :sheeternetes
   (:use :cl)
@@ -74,4 +79,6 @@
       (t (format t "usage: skctl.lisp get pods|nodes|deployments|events | scale <name> <n> | delete <name> | apply <file>~%")))))
 
 (eval-when (:execute)
-  (when (uiop:command-line-arguments) (main)))
+  (when (uiop:command-line-arguments)
+    (main)
+    (uiop:quit 0)))

@@ -42,11 +42,11 @@ Requires [SBCL](http://www.sbcl.org/) and [Quicklisp](https://www.quicklisp.org/
 export WEBAPP_URL="https://script.google.com/macros/s/XXXX/exec"
 export TOKEN="CHANGE_ME_super_secret"
 
-sbcl --script skctl.lisp get pods
-sbcl --script skctl.lisp get deployments
-sbcl --script skctl.lisp scale hello 3
-sbcl --script skctl.lisp apply manifest.json
-sbcl --script skctl.lisp delete hello
+sbcl --non-interactive --load skctl.lisp -- get pods
+sbcl --non-interactive --load skctl.lisp -- get deployments
+sbcl --non-interactive --load skctl.lisp -- scale hello 3
+sbcl --non-interactive --load skctl.lisp -- apply manifest.json
+sbcl --non-interactive --load skctl.lisp -- delete hello
 ```
 
 From the REPL:
