@@ -78,9 +78,9 @@
          (cmd (first args)))
     (cond
       ((string= cmd "get")   (get-resource (or (second args) "pods")))
-      ((string= cmd "scale") (format t "~a~%" (scale (second args) (parse-integer (third args)))))
-      ((string= cmd "delete")(format t "~a~%" (del (second args))))
-      ((string= cmd "apply") (format t "~a~%" (apply-file (second args))))
+      ((string= cmd "scale") (format t "~a~%" (->json (scale (second args) (parse-integer (third args))))))
+      ((string= cmd "delete")(format t "~a~%" (->json (del (second args)))))
+      ((string= cmd "apply") (format t "~a~%" (->json (apply-file (second args)))))
       (t (format t "usage: skctl.lisp get pods|nodes|deployments|events | scale <name> <n> | delete <name> | apply <file>~%")))))
 
 (eval-when (:execute)
