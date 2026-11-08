@@ -68,8 +68,13 @@
          (deployments (gethash "deployments" spec)))
     (api-post `(("action" . "apply") ("deployments" . ,deployments)))))
 
+(defun cli-args ()
+  "Command-line arguments, minus the `--` separator SBCL passes through."
+  (let ((args (uiop:command-line-arguments)))
+    (if (equal (first args) "--") (rest args) args)))
+
 (defun main ()
-  (let* ((args (uiop:command-line-arguments))
+  (let* ((args (cli-args))
          (cmd (first args)))
     (cond
       ((string= cmd "get")   (get-resource (or (second args) "pods")))
@@ -79,6 +84,6 @@
       (t (format t "usage: skctl.lisp get pods|nodes|deployments|events | scale <name> <n> | delete <name> | apply <file>~%")))))
 
 (eval-when (:execute)
-  (when (uiop:command-line-arguments)
+  (when (cli-args)
     (main)
     (uiop:quit 0)))
