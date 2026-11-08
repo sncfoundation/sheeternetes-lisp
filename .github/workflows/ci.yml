@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install SBCL
+        run: sudo apt-get update -q && sudo apt-get install -y -q sbcl
+      - name: Install Quicklisp with dexador and yason
+        run: |
+          curl -fsSLo /tmp/quicklisp.lisp https://beta.quicklisp.org/quicklisp.lisp
+          sbcl --non-interactive --load /tmp/quicklisp.lisp \
+            --eval '(quicklisp-quickstart:install)' \
+            --eval '(ql:quickload (list :dexador :yason))'
+      - name: Smoke run against a stub apiserver
+        env:
+          WEBAPP_URL: http://127.0.0.1:8080/exec
+          TOKEN: ci
+        run: |
+          python3 .github/ci/stub_apiserver.py &
+          sleep 1
+          out=$(sbcl --non-interactive --load skctl.lisp -- get pods)
+          echo "$out"
+          grep -q 'hello-1' <<<"$out"
+          out=$(sbcl --non-interactive --load skctl.lisp -- scale hello 3)
+          echo "$out"
+          grep -q 'scale' <<<"$out"
